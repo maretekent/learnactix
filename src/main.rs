@@ -1,17 +1,20 @@
-use actix_web::{ web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{ web, App, HttpResponse, HttpServer, Responder, middleware::Logger};
 
 
 async fn index () -> impl Responder {
-	println!("executing the index method...");
+	log::info!("executing the index method...");
 	HttpResponse::Ok().body("Hello world")
 }
 
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("starting web application");
-	HttpServer::new( || {
+	std::env::set_var("RUST_LOG", "info");
+	env_logger::init();
+    log::info!("starting web application...");
+	HttpServer::new( move || {
 		App::new()
+			.wrap(Logger::default())
 			.service(
 				web::scope("/app")
 					.route("/index.html", web::get().to(index))
