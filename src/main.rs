@@ -1,15 +1,9 @@
-use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
+use actix_web::{ web, App, HttpResponse, HttpServer, Responder};
 
-#[get("/")]
-async fn hello() -> impl Responder {
-	println!("calling hello ...");
-	HttpResponse::Ok().body("hello world!")
-}
 
-#[post("/echo")]
-async fn echo (req: String) -> impl Responder {
-	println!("calling echo ....");
-	HttpResponse::Ok().body(req)
+async fn index () -> impl Responder {
+	println!("executing the index method...");
+	HttpResponse::Ok().body("Hello world")
 }
 
 
@@ -18,8 +12,10 @@ async fn main() -> std::io::Result<()> {
     println!("starting web application");
 	HttpServer::new( || {
 		App::new()
-			.service(hello)
-			.service(echo)
+			.service(
+				web::scope("/app")
+					.route("/index.html", web::get().to(index))
+			)
 	})
 		.bind("0.0.0.0:5001")?
 		.run()
